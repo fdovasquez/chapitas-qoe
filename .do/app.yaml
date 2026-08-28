@@ -15,4 +15,5 @@ static_sites:
       repo: fdovasquez/chapitas-qoe
       branch: main
       deploy_on_push: true
+    source_dir: /
     index_document: index.html
