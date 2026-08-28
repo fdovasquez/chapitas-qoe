@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generador de chapitas</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #24211d;
+      --muted: #6c655d;
+      --line: #d8d0c4;
+      --panel: #fffdf9;
+      --accent: #007c89;
+      --accent-ink: #ffffff;
+      --warn: #a45312;
+      --shadow: 0 18px 46px rgba(45, 39, 31, 0.14);
+      --sheet-scale: 0.68;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 22px;
+      line-height: 1.15;
+      margin: 0;
+      font-weight: 650;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .panel {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .panel:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    details.advanced {
+      margin-top: 12px;
+    }
+
+    details.advanced summary {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 650;
+    }
+
+    h2 {
+      font-size: 13px;
+      line-height: 1.2;
+      margin: 0 0 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .inline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .check input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--accent);
+    }
+
+    input[type="number"],
+    input[type="range"],
+    input[type="file"],
+    select {
+      width: 100%;
+    }
+
+    input[type="number"],
+    select {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 8px 10px;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent);
+    }
+
+    input[type="file"] {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #ffffff;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .actions.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .btn {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 650;
+    }
+
+    .btn:hover {
+      border-color: #b8aa9a;
+    }
+
+    .btn.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    .btn.danger {
+      border-color: #d8a69a;
+      color: #8f2718;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .warning {
+      display: none;
+      color: var(--warn);
+      font-size: 13px;
+      line-height: 1.35;
+      margin-top: 8px;
+    }
+
+    .warning.show {
+      display: block;
+    }
+
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .thumb {
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      object-fit: cover;
+      background: #ffffff;
+    }
+
+    .selected-name {
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+
+    .workspace {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      padding: 18px;
+      gap: 14px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+    }
+
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .metric {
+      background: rgba(255, 253, 249, 0.8);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 9px;
+    }
+
+    .preview-wrap {
+      min-width: 0;
+      overflow: auto;
+      display: grid;
+      place-items: start center;
+      padding: 18px;
+    }
+
+    .sheet-shell {
+      position: relative;
+      width: calc(216mm * var(--sheet-scale));
+      height: calc(279mm * var(--sheet-scale));
+    }
+
+    .sheet {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 216mm;
+      height: 279mm;
+      transform: scale(var(--sheet-scale));
+      transform-origin: top left;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .slot {
+      position: absolute;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 0;
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .slot.selected {
+      outline: 1.3mm solid rgba(0, 124, 137, 0.28);
+      outline-offset: 1.3mm;
+    }
+
+    .slot img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform-origin: center;
+      transform: translate(-50%, -50%) translate(var(--img-x, 0%), var(--img-y, 0%)) scale(var(--img-zoom, 1));
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .cut-ring {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: 50%;
+      border: 0.35mm dashed #111111;
+      pointer-events: none;
+    }
+
+    .slot.contain img {
+      object-fit: contain;
+    }
+
+    .visible-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 1;
+      border-radius: 50%;
+      border: 0.28mm dashed #1260ff;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .center-mark {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 1;
+      width: 4mm;
+      height: 4mm;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .center-mark::before,
+    .center-mark::after {
+      content: "";
+      position: absolute;
+      background: rgba(90, 90, 90, 0.75);
+    }
+
+    .center-mark::before {
+      left: 0;
+      right: 0;
+      top: calc(50% - 0.08mm);
+      height: 0.16mm;
+    }
+
+    .center-mark::after {
+      top: 0;
+      bottom: 0;
+      left: calc(50% - 0.08mm);
+      width: 0.16mm;
+    }
+
+    .slot-label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: #a69c91;
+      font-size: 7px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .page-note {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 2.2mm;
+      text-align: center;
+      font-size: 2.1mm;
+      color: #6a625a;
+    }
+
+    body.hide-guides .cut-ring,
+    body.hide-guides .visible-ring,
+    body.hide-guides .center-mark,
+    body.hide-guides .page-note {
+      display: none;
+    }
+
+    .slot.has-image .cut-ring,
+    .slot.has-image .visible-ring,
+    .slot.has-image .center-mark {
+      display: none;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+
+    @media print {
+      @page {
+        size: 216mm 279mm;
+        margin: 0;
+      }
+
+      html,
+      body {
+        width: 216mm;
+        height: 279mm;
+        margin: 0;
+        background: #ffffff;
+      }
+
+      .sidebar,
+      .topbar {
+        display: none !important;
+      }
+
+      .app,
+      .workspace,
+      .preview-wrap,
+      .sheet-shell {
+        display: block;
+        width: 216mm;
+        height: 279mm;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .sheet {
+        position: static;
+        width: 216mm;
+        height: 279mm;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .slot {
+        cursor: default;
+      }
+
+      .slot.selected {
+        outline: none;
+      }
+
+      .slot-label {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Generador de chapitas</h1>
+        <span class="badge">Carta</span>
+      </div>
+
+      <section class="panel">
+        <h2>1. Tamano</h2>
+        <label>
+          Tipo de chapita
+          <select id="preset">
+            <option value="58-70" selected>58 mm / corte 70 mm</option>
+            <option value="58-72">58 mm / corte 72 mm</option>
+            <option value="56-66">56 mm / corte 66 mm</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </label>
+        <details class="advanced">
+          <summary>Medidas avanzadas</summary>
+          <div class="row">
+            <label>
+              Visible mm
+              <input id="visibleMm" type="number" min="20" max="120" step="0.1" value="58">
+            </label>
+            <label>
+              Corte mm
+              <input id="cutMm" type="number" min="25" max="140" step="0.1" value="70">
+            </label>
+          </div>
+          <div class="row">
+            <label>
+              Columnas
+              <input id="cols" type="number" min="1" max="5" step="1" value="2">
+            </label>
+            <label>
+              Filas
+              <input id="rows" type="number" min="1" max="8" step="1" value="3">
+            </label>
+          </div>
+          <div class="row">
+            <label>
+              Espacio X mm
+              <input id="gapX" type="number" min="0" max="40" step="0.5" value="18">
+            </label>
+            <label>
+              Espacio Y mm
+              <input id="gapY" type="number" min="0" max="40" step="0.5" value="14">
+            </label>
+          </div>
+          <label class="check">
+            <input id="showGuides" type="checkbox" checked>
+            Mostrar guias al imprimir
+          </label>
+        </details>
+        <p id="fitWarning" class="warning" role="alert"></p>
+      </section>
+
+      <section class="panel">
+        <h2>2. Fotos</h2>
+        <input id="fileInput" class="sr-only" type="file" accept="image/*" multiple>
+        <button class="btn primary" id="addPhotos" type="button">Agregar fotos</button>
+        <p class="muted" id="imageCount">Ninguna foto cargada</p>
+        <label>
+          Como entra la foto
+          <select id="fitMode">
+            <option value="cover" selected>Rellenar circulo</option>
+            <option value="contain">Imagen completa</option>
+          </select>
+        </label>
+        <details class="advanced">
+          <summary>Mas opciones</summary>
+          <label class="check">
+            <input id="repeatMissing" type="checkbox">
+            Repetir si faltan fotos
+          </label>
+          <button class="btn" id="assignSequential" type="button">Ordenar fotos otra vez</button>
+        </details>
+        <p class="muted">Cada foto va en una chapita distinta. Toca una chapita para cambiarla o borrarla.</p>
+        <div id="thumbs" class="thumbs" aria-live="polite"></div>
+      </section>
+
+      <section class="panel">
+        <h2>3. Chapita elegida</h2>
+        <p class="selected-name" id="selectedInfo">Chapita 1</p>
+        <input id="replaceInput" class="sr-only" type="file" accept="image/*">
+        <div class="actions two">
+          <button class="btn" id="replacePhoto" type="button">Cambiar foto</button>
+          <button class="btn danger" id="clearSlot" type="button">Borrar foto</button>
+        </div>
+        <label>
+          Acercar <span id="zoomValue">100%</span>
+          <input id="zoom" type="range" min="60" max="180" step="1" value="100">
+        </label>
+        <div class="row">
+          <label>
+            Mover lados <span id="offsetXValue">0%</span>
+            <input id="offsetX" type="range" min="-40" max="40" step="1" value="0">
+          </label>
+          <label>
+            Mover arriba <span id="offsetYValue">0%</span>
+            <input id="offsetY" type="range" min="-40" max="40" step="1" value="0">
+          </label>
+        </div>
+        <div class="actions">
+          <button class="btn" id="applyAll" type="button">Usar este encuadre en todas</button>
+          <button class="btn danger" id="clearAll" type="button">Borrar todo</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>4. Listo</h2>
+        <div class="actions">
+          <button class="btn primary" id="printPdf" type="button">PDF / Imprimir</button>
+          <button class="btn" id="reset" type="button">Reiniciar hoja</button>
+        </div>
+        <p class="muted">En la ventana de impresion elige guardar como PDF o tu impresora, con escala 100%.</p>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <div class="topbar">
+        <div class="metrics">
+          <span class="metric" id="countMetric">6 espacios</span>
+          <span class="metric" id="cutMetric">Corte 70 mm</span>
+          <span class="metric" id="visibleMetric">Visible 58 mm</span>
+        </div>
+        <span class="muted">Hoja carta: 216 x 279 mm</span>
+      </div>
+      <div class="preview-wrap" id="previewWrap">
+        <div class="sheet-shell">
+          <section class="sheet" id="sheet" aria-label="Vista previa de hoja carta"></section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const PAGE_W = 216;
+    const PAGE_H = 279;
+    const presets = {
+      "58-70": { visible: 58, cut: 70, cols: 2, rows: 3, gapX: 18, gapY: 14 },
+      "58-72": { visible: 58, cut: 72, cols: 2, rows: 3, gapX: 18, gapY: 12 },
+      "56-66": { visible: 56, cut: 66, cols: 3, rows: 4, gapX: 2, gapY: 2 }
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const fields = {
+      preset: $("preset"),
+      visibleMm: $("visibleMm"),
+      cutMm: $("cutMm"),
+      cols: $("cols"),
+      rows: $("rows"),
+      gapX: $("gapX"),
+      gapY: $("gapY"),
+      showGuides: $("showGuides"),
+      repeatMissing: $("repeatMissing"),
+      fileInput: $("fileInput"),
+      replaceInput: $("replaceInput"),
+      fitMode: $("fitMode"),
+      zoom: $("zoom"),
+      offsetX: $("offsetX"),
+      offsetY: $("offsetY")
+    };
+
+    const state = {
+      images: [],
+      slots: [],
+      selected: 0
+    };
+
+    function numberValue(input, fallback) {
+      const value = Number(input.value);
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function settings() {
+      return {
+        visible: numberValue(fields.visibleMm, 58),
+        cut: numberValue(fields.cutMm, 70),
+        cols: Math.max(1, Math.round(numberValue(fields.cols, 2))),
+        rows: Math.max(1, Math.round(numberValue(fields.rows, 3))),
+        gapX: numberValue(fields.gapX, 18),
+        gapY: numberValue(fields.gapY, 14),
+        fitMode: fields.fitMode.value
+      };
+    }
+
+    function normalizeSlots() {
+      const config = settings();
+      const total = config.cols * config.rows;
+      while (state.slots.length < total) {
+        state.slots.push({ imageIndex: -1, zoom: 100, x: 0, y: 0 });
+      }
+      state.slots.length = total;
+      if (state.selected >= total) state.selected = Math.max(0, total - 1);
+    }
+
+    function assignImagesSequentially() {
+      state.slots.forEach((slot, index) => {
+        if (index < state.images.length) {
+          slot.imageIndex = index;
+        } else if (fields.repeatMissing.checked && state.images.length > 0) {
+          slot.imageIndex = index % state.images.length;
+        } else {
+          slot.imageIndex = -1;
+        }
+      });
+    }
+
+    function layoutSlots(config) {
+      const gridW = config.cols * config.cut + (config.cols - 1) * config.gapX;
+      const gridH = config.rows * config.cut + (config.rows - 1) * config.gapY;
+      const left = (PAGE_W - gridW) / 2;
+      const top = (PAGE_H - gridH) / 2;
+      return { gridW, gridH, left, top };
+    }
+
+    function render() {
+      normalizeSlots();
+      const config = settings();
+      const layout = layoutSlots(config);
+      const sheet = $("sheet");
+      sheet.innerHTML = "";
+      document.body.classList.toggle("hide-guides", !fields.showGuides.checked);
+
+      const warning = $("fitWarning");
+      if (layout.gridW > PAGE_W || layout.gridH > PAGE_H || config.visible > config.cut) {
+        const reason = config.visible > config.cut
+          ? "El diametro visible no puede ser mayor que el corte."
+          : "La grilla supera el tamano de la hoja carta.";
+        warning.textContent = reason;
+        warning.classList.add("show");
+      } else {
+        warning.textContent = "";
+        warning.classList.remove("show");
+      }
+
+      const visiblePct = Math.max(0, Math.min(100, (config.visible / config.cut) * 100));
+      state.slots.forEach((slot, index) => {
+        const col = index % config.cols;
+        const row = Math.floor(index / config.cols);
+        const x = layout.left + col * (config.cut + config.gapX);
+        const y = layout.top + row * (config.cut + config.gapY);
+        const item = document.createElement("button");
+        item.type = "button";
+        const imgData = state.images[slot.imageIndex];
+        item.className = "slot"
+          + (index === state.selected ? " selected" : "")
+          + (config.fitMode === "contain" ? " contain" : "")
+          + (imgData ? " has-image" : "");
+        item.style.left = `${x}mm`;
+        item.style.top = `${y}mm`;
+        item.style.width = `${config.cut}mm`;
+        item.style.height = `${config.cut}mm`;
+        item.setAttribute("aria-label", `Espacio ${index + 1}`);
+        item.addEventListener("click", () => selectSlot(index));
+
+        const cutRing = document.createElement("span");
+        cutRing.className = "cut-ring";
+        item.appendChild(cutRing);
+
+        const ring = document.createElement("span");
+        ring.className = "visible-ring";
+        ring.style.width = `${visiblePct}%`;
+        ring.style.height = `${visiblePct}%`;
+        item.appendChild(ring);
+
+        const mark = document.createElement("span");
+        mark.className = "center-mark";
+        item.appendChild(mark);
+
+        if (imgData) {
+          const img = document.createElement("img");
+          img.alt = "";
+          img.src = imgData.src;
+          img.style.setProperty("--img-zoom", String(slot.zoom / 100));
+          img.style.setProperty("--img-x", `${slot.x}%`);
+          img.style.setProperty("--img-y", `${slot.y}%`);
+          item.appendChild(img);
+        } else {
+          const label = document.createElement("span");
+          label.className = "slot-label";
+          label.textContent = "Imagen";
+          item.appendChild(label);
+        }
+
+        sheet.appendChild(item);
+      });
+
+      const note = document.createElement("div");
+      note.className = "page-note";
+      note.textContent = `Visible ${config.visible} mm - corte ${config.cut} mm - imprimir al 100%`;
+      sheet.appendChild(note);
+
+      $("countMetric").textContent = `${state.slots.length} espacios`;
+      $("cutMetric").textContent = `Corte ${config.cut} mm`;
+      $("visibleMetric").textContent = `Visible ${config.visible} mm`;
+      updateSlotControls();
+      resizePreview();
+    }
+
+    function updateThumbs() {
+      const thumbs = $("thumbs");
+      thumbs.innerHTML = "";
+      $("imageCount").textContent = state.images.length === 0
+        ? "Ninguna foto cargada"
+        : `${state.images.length} foto${state.images.length === 1 ? "" : "s"} cargada${state.images.length === 1 ? "" : "s"}`;
+      state.images.forEach((image, index) => {
+        const thumb = document.createElement("button");
+        thumb.type = "button";
+        thumb.className = "thumb";
+        thumb.setAttribute("aria-label", `Poner ${image.name} en la chapita elegida`);
+        thumb.addEventListener("click", () => updateSelectedSlot({ imageIndex: index }));
+
+        const img = document.createElement("img");
+        img.src = image.src;
+        img.alt = image.name;
+        thumb.appendChild(img);
+        thumbs.appendChild(thumb);
+      });
+    }
+
+    function updateSlotControls() {
+      const slot = state.slots[state.selected] || { imageIndex: -1, zoom: 100, x: 0, y: 0 };
+      const image = state.images[slot.imageIndex];
+      $("selectedInfo").textContent = image
+        ? `Chapita ${state.selected + 1}: ${image.name}`
+        : `Chapita ${state.selected + 1}: sin foto`;
+      fields.zoom.value = String(slot.zoom);
+      fields.offsetX.value = String(slot.x);
+      fields.offsetY.value = String(slot.y);
+      $("zoomValue").textContent = `${slot.zoom}%`;
+      $("offsetXValue").textContent = `${slot.x}%`;
+      $("offsetYValue").textContent = `${slot.y}%`;
+    }
+
+    function selectSlot(index) {
+      state.selected = index;
+      render();
+    }
+
+    function updateSelectedSlot(updates) {
+      const slot = state.slots[state.selected];
+      if (!slot) return;
+      Object.assign(slot, updates);
+      render();
+    }
+
+    function compactUnusedImages() {
+      const used = new Set(state.slots.map((slot) => slot.imageIndex).filter((index) => index >= 0));
+      const indexMap = new Map();
+      const keptImages = [];
+      state.images.forEach((image, index) => {
+        if (!used.has(index)) return;
+        indexMap.set(index, keptImages.length);
+        keptImages.push(image);
+      });
+      state.images = keptImages;
+      state.slots.forEach((slot) => {
+        slot.imageIndex = indexMap.has(slot.imageIndex) ? indexMap.get(slot.imageIndex) : -1;
+      });
+    }
+
+    function clearSelectedPhoto() {
+      const slot = state.slots[state.selected];
+      if (!slot) return;
+      slot.imageIndex = -1;
+      compactUnusedImages();
+      updateThumbs();
+      render();
+    }
+
+    function resizePreview() {
+      const wrap = $("previewWrap");
+      const available = Math.max(280, wrap.clientWidth - 36);
+      const physicalPx = 216 * 96 / 25.4;
+      const scale = Math.min(1, available / physicalPx);
+      document.documentElement.style.setProperty("--sheet-scale", scale.toFixed(3));
+    }
+
+    function firstEmptySlotIndex() {
+      return state.slots.findIndex((slot) => slot.imageIndex < 0);
+    }
+
+    async function loadImageFiles(files) {
+      const items = Array.from(files).filter((file) => file.type.startsWith("image/"));
+      return Promise.all(items.map((file) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ name: file.name, src: reader.result });
+        reader.readAsDataURL(file);
+      })));
+    }
+
+    async function handleFiles(files) {
+      const loaded = await loadImageFiles(files);
+      if (loaded.length === 0) return;
+      normalizeSlots();
+      let skipped = 0;
+      loaded.forEach((image) => {
+        const emptyIndex = firstEmptySlotIndex();
+        if (emptyIndex >= 0) {
+          state.images.push(image);
+          state.slots[emptyIndex].imageIndex = state.images.length - 1;
+        } else {
+          skipped += 1;
+        }
+      });
+      updateThumbs();
+      render();
+      fields.fileInput.value = "";
+      if (skipped > 0) {
+        alert("La hoja ya esta llena. Toca una chapita y usa Cambiar foto.");
+      }
+    }
+
+    async function replaceSelectedPhoto(files) {
+      const loaded = await loadImageFiles(files);
+      if (loaded.length === 0) return;
+      const slot = state.slots[state.selected];
+      if (!slot) return;
+      state.images.push(loaded[0]);
+      Object.assign(slot, { imageIndex: state.images.length - 1, zoom: 100, x: 0, y: 0 });
+      compactUnusedImages();
+      updateThumbs();
+      render();
+      fields.replaceInput.value = "";
+    }
+
+    function applyPreset(value) {
+      if (!presets[value]) return;
+      const preset = presets[value];
+      fields.visibleMm.value = preset.visible;
+      fields.cutMm.value = preset.cut;
+      fields.cols.value = preset.cols;
+      fields.rows.value = preset.rows;
+      fields.gapX.value = preset.gapX;
+      fields.gapY.value = preset.gapY;
+      render();
+    }
+
+    fields.preset.addEventListener("change", () => applyPreset(fields.preset.value));
+    [fields.visibleMm, fields.cutMm, fields.cols, fields.rows, fields.gapX, fields.gapY].forEach((input) => {
+      input.addEventListener("input", () => {
+        fields.preset.value = "custom";
+        render();
+      });
+    });
+    fields.showGuides.addEventListener("change", render);
+    fields.repeatMissing.addEventListener("change", () => {
+      assignImagesSequentially();
+      render();
+    });
+    fields.fitMode.addEventListener("change", render);
+    $("addPhotos").addEventListener("click", () => fields.fileInput.click());
+    $("replacePhoto").addEventListener("click", () => fields.replaceInput.click());
+    fields.fileInput.addEventListener("change", (event) => handleFiles(event.target.files));
+    fields.replaceInput.addEventListener("change", (event) => replaceSelectedPhoto(event.target.files));
+    fields.zoom.addEventListener("input", () => updateSelectedSlot({ zoom: Number(fields.zoom.value) }));
+    fields.offsetX.addEventListener("input", () => updateSelectedSlot({ x: Number(fields.offsetX.value) }));
+    fields.offsetY.addEventListener("input", () => updateSelectedSlot({ y: Number(fields.offsetY.value) }));
+    $("applyAll").addEventListener("click", () => {
+      const source = state.slots[state.selected];
+      if (!source) return;
+      state.slots.forEach((slot) => {
+        slot.zoom = source.zoom;
+        slot.x = source.x;
+        slot.y = source.y;
+      });
+      render();
+    });
+    $("clearSlot").addEventListener("click", clearSelectedPhoto);
+    $("clearAll").addEventListener("click", () => {
+      if (!confirm("Quieres borrar todas las fotos de la hoja?")) return;
+      state.images = [];
+      state.slots.forEach((slot) => {
+        slot.imageIndex = -1;
+        slot.zoom = 100;
+        slot.x = 0;
+        slot.y = 0;
+      });
+      fields.fileInput.value = "";
+      fields.replaceInput.value = "";
+      updateThumbs();
+      render();
+    });
+    $("assignSequential").addEventListener("click", () => {
+      assignImagesSequentially();
+      render();
+    });
+    $("printPdf").addEventListener("click", () => {
+      render();
+      requestAnimationFrame(() => window.print());
+    });
+    $("reset").addEventListener("click", () => {
+      state.images = [];
+      state.slots = [];
+      state.selected = 0;
+      fields.fileInput.value = "";
+      fields.preset.value = "58-70";
+      fields.repeatMissing.checked = false;
+      fields.showGuides.checked = true;
+      fields.fitMode.value = "cover";
+      applyPreset("58-70");
+      updateThumbs();
+    });
+    window.addEventListener("resize", resizePreview);
+
+    applyPreset("58-70");
+  </script>
+</body>
+</html>
