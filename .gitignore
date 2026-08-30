@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.electron-cache/
+.electron-builder-cache/
+.local-appdata/
+.DS_Store
+Thumbs.db
+*.log

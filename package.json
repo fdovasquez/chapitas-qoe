@@ -1,0 +1,42 @@
+{
+  "name": "chapitas-desktop",
+  "version": "1.0.0",
+  "description": "Aplicacion de escritorio para crear hojas imprimibles de chapitas.",
+  "author": "QOE",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "dist": "electron-builder --win --mac"
+  },
+  "build": {
+    "appId": "cl.qoe.chapitas",
+    "productName": "Chapitas QOE",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "zip"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.graphics-design"
+    },
+    "compression": "normal"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  }
+}
