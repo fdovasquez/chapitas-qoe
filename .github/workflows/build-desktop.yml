@@ -1,0 +1,80 @@
+name: Build desktop app
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - desktop-app
+
+jobs:
+  mac-portable:
+    name: Mac portable (${{ matrix.arch }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - x64
+          - arm64
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Mac portable ZIP
+        run: pnpm run build:mac:${{ matrix.arch }}
+
+      - name: Upload Mac ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chapitas-QOE-mac-${{ matrix.arch }}
+          path: dist/*.zip
+          if-no-files-found: error
+
+  windows-portable:
+    name: Windows portable
+    runs-on: windows-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Windows portable ZIP
+        run: pnpm run build:win
+
+      - name: Upload Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chapitas-QOE-windows
+          path: dist/*.zip
+          if-no-files-found: error

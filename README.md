@@ -30,9 +30,11 @@ Mac:
 pnpm build:mac
 ```
 
-En Mac se genera un DMG. El build de Mac debe hacerse desde un computador Mac.
+En Mac se generan ZIP portables para Intel y Apple Silicon. Si macOS avisa que la app viene de un desarrollador no identificado, abre con clic derecho sobre la app y luego **Abrir**.
 
 Los archivos finales quedan en `dist/`.
+
+Tambien hay una accion de GitHub llamada **Build desktop app**. Al ejecutarse, deja los ZIP descargables en la seccion **Artifacts** de la ejecucion.
 
 ## Uso
 
